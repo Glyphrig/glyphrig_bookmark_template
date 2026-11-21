@@ -1,0 +1,34 @@
+# Glyphrig Public Bookmark Site Configuration
+# Only data & config live in this repo; @glyphrig/cli handles building Astro + Pagefind in CI.
+
+site:
+  title: My Public Bookmarks
+  description: Curated links synced from my browsers via Glyphrig.
+  author: Your Name
+  # url: https://username.github.io
+  # base: /my-bookmarks/ # Auto-detected in GitHub Actions; set explicitly if needed.
+
+theme:
+  accent: "#b45309" # Warm amber-ochre; customize to any hex color
+  defaultView: list # "list" | "cards"
+  # customCss: assets/custom.css
+
+enrichment:
+  enabled: true       # Fetch page descriptions, OG images, and local favicons at build time
+  fetchFavicons: true
+  fetchOgImage: true
+  autoTags: false     # Set true to include <meta keywords> as tags
+  concurrency: 8
+  timeoutMs: 5000
+  ttlDays: 30
+
+pwa:
+  enabled: true       # Generates manifest.webmanifest (with Share Target) & offline sw.js
+  quickAdd:
+    enabled: false    # Set true and fill repo details below to enable phone/browser Quick Add via PAT
+    forge: github     # "github" | "gitlab" | "forgejo"
+    # instanceUrl: https://codeberg.org
+    owner: your-username
+    repo: my-bookmarks
+    branch: main
+    rootDir: bookmarks

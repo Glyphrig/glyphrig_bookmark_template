@@ -1,0 +1,44 @@
+# Copy this file to `.forgejo/workflows/deploy.yml` (or `.gitea/workflows/deploy.yml`)
+# for Codeberg, Forgejo, or Gitea Actions deploying to a `pages` branch.
+
+name: Build & Deploy Glyphrig Site
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "bookmarks/**"
+      - "glyphrig.config.yaml"
+      - "assets/**"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - uses: actions/cache@v4
+        with:
+          path: .glyphrig-cache
+          key: glyphrig-cache-${{ hashFiles('bookmarks/**/README.md') }}
+          restore-keys: |
+            glyphrig-cache-
+
+      - name: Build static site
+        run: npx --yes @glyphrig/cli@0 build --cache-dir .glyphrig-cache
+
+      - name: Publish dist/ to pages branch
+        run: |
+          cd dist
+          git init -b pages
+          git config user.name "glyphrig-bot"
+          git config user.email "actions@users.noreply.codeberg.org"
+          git add -A
+          git commit -m "Deploy Glyphrig static site"
+          git push --force "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@codeberg.org/${{ github.repository }}.git" pages

@@ -1,0 +1,24 @@
+# Copy this file to `.gitlab-ci.yml` in the root of your GitLab bookmark repository.
+# For project repositories (not <username>.gitlab.io), set `site.base: /<repo-name>/`
+# in `glyphrig.config.yaml` or pass `--base /$CI_PROJECT_NAME/` below.
+
+image: node:22-slim
+
+pages:
+  stage: deploy
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  cache:
+    key: glyphrig-enrichment-cache
+    paths:
+      - .glyphrig-cache/
+  script:
+    - |
+      if [ "$CI_PROJECT_PATH" != "${CI_PROJECT_NAMESPACE}.gitlab.io" ]; then
+        npx --yes @glyphrig/cli@0 build --out public --cache-dir .glyphrig-cache --base "/$CI_PROJECT_NAME/"
+      else
+        npx --yes @glyphrig/cli@0 build --out public --cache-dir .glyphrig-cache
+      fi
+  artifacts:
+    paths:
+      - public
